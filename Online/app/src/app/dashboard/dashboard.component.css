@@ -1,0 +1,15 @@
+.dashboard-content {
+    height: 100%;
+}
+
+mat-card {
+    width: 95%;
+    margin: auto;
+    margin-top: 16px;
+    margin-botton: 16px;
+}
+
+.hero-card {
+    width: 250px;
+    margin: 16px;
+}

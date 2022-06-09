@@ -1,2 +1,3 @@
 # Python
-Various Python codes
+
+Various Python projects

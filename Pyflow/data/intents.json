@@ -1,0 +1,120 @@
+[
+    {
+        "name": "greetings",
+        "samples": [
+            "Hello",
+            "Hey",
+            "Hi",
+            "Good day",
+            "Greetings",
+            "What's up?",
+            "How is it going?",
+            "Is anyone there?",
+            "How are you?"
+        ],
+        "answers": [
+            "Hello!",
+            "Hey!", 
+            "Hey :-)",
+            "Hello, thanks for visiting",
+            "Hi there, what can I do for you?",
+            "Hi there, how can I help?"
+        ]
+    },
+    {
+        "name": "bye",
+        "samples": [
+            "Cya",
+            "See you later",
+            "Goodbye",
+            "I am Leaving",
+            "Have a Good day",
+            "Bye",
+            "Cao",
+            "See ya",
+            "Good bye"
+        ],
+        "answers": [
+            "Sad to see you go :(",
+                "Talk to you later",
+                "Goodbye!"
+        ]
+    },
+    {
+        "name": "thanks",
+        "samples": [
+            "Thanks",
+            "Thank you",
+            "That's helpful",
+            "Thank's a lot!"
+        ],
+        "answers": [
+            "Happy to help!",
+            "Any time!",
+            "My pleasure"
+        ]
+    },
+    {
+        "name": "stocks",
+        "samples": [
+            "What stocks do I own?", 
+            "How are my shares?", 
+            "What companies am I investing in?", 
+            "What am I doing in the markets?"
+        ],
+        "answers": [
+            "You own the following shares: ABBV, AAPL, FB, NVDA and an ETF of the S&P 500 Index!"
+        ]
+    },
+    {
+        "name": "items",
+        "samples": [
+            "Which items do you have?",
+            "What kinds of items are there?",
+            "What do you sell?"
+        ],
+        "answers": [
+            "We sell coffee and tea",
+            "We have coffee and tea"
+        ]
+    },
+    {
+        "name": "payments",
+        "samples": [
+            "Do you take credit cards?",
+            "Do you accept Mastercard?",
+            "Can I pay with Paypal?",
+            "Are you cash only?",
+	    "How can I pay you?"
+        ],
+        "answers": [
+            "We accept VISA, Mastercard and Paypal",
+            "We accept most major credit cards, and Paypal"
+        ]
+    },
+    {
+        "name": "delivery",
+        "samples": [
+            "How long does delivery take?",
+            "How long does shipping take?",
+            "When do I get my delivery?",
+	    "How long for the delivery?"
+        ],
+        "answers": [
+            "Delivery takes 2-4 days",
+            "Shipping takes 2-4 days"
+        ]
+    },
+    {
+        "name": "funny",
+        "samples": [
+            "Tell me a joke!",
+            "Tell me something funny!",
+            "Do you know a joke?"
+        ],
+        "answers": [
+            "Why did the hipster burn his mouth? He drank the coffee before it was cool.",
+            "What did the buffalo say when his son left for college? Bison."
+        ]
+    }
+]

@@ -1,0 +1,23 @@
+mat-card {
+    width: 80%;
+    margin: auto;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+table {
+    width: 95%;
+    margin: auto;
+}
+
+th.mat-column-id {
+    width: 64px;
+}
+
+th.mat-column-actions {
+    width: 100px;
+}

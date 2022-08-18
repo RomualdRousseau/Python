@@ -1,7 +1,9 @@
 # Function dependencies, for example:
 # package>=version
+requests
 pandas
 xlrd
 openpyxl
 fsspec
 gcsfs
+cloudstorage

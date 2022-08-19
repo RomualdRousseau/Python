@@ -6,4 +6,5 @@ xlrd
 openpyxl
 fsspec
 gcsfs
-cloudstorage
+google-cloud-storage
+google-cloud-pubsub

@@ -23,6 +23,8 @@ def dsl_get_auth_header(base_url, user, password):
         {"user": user, "password": password}
         ).text
 
+    print(token)
+
     # Build Authentication header for all successive api calls
 
     return {

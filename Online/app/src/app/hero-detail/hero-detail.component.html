@@ -1,0 +1,19 @@
+<mat-card *ngIf="hero">
+    <mat-card-title>{{hero.name | uppercase}} Details</mat-card-title>
+    <mat-card-content>
+        <p>
+        <mat-form-field>
+            <input matInput placeholder="Id" name="id" disabled value="{{hero.id}}">
+        </mat-form-field>
+        </p>
+        <p>
+        <mat-form-field>
+            <input matInput placeholder="Name" name="name" [(ngModel)]="hero.name" value="{{hero.name}}">
+        </mat-form-field>
+        </p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+        <button mat-raised-button type="submit" color="primary" (click)="save()">Save Hero</button>
+        <button mat-raised-button (click)="goBack()">Discard Changes</button>
+    </mat-card-actions>
+</mat-card>

@@ -1,0 +1,23 @@
+<mat-drawer-container class="dashboard-content">
+    <mat-drawer-content>
+        <mat-card>
+            <mat-card-title>Top Heroes</mat-card-title>
+            <mat-card-content>
+                <div fxLayout="row wrap" fxLayoutAlign="space-around">
+                    <div fxFlex="25%" fxFlex.lg="33%" fxFlex.md="50%" fxFlex.sm="100%" *ngFor="let hero of heroes">
+                        <mat-card class="hero-card mat-elevation-z4">
+                            <mat-card-title>{{ hero.name }}</mat-card-title>
+                            <mat-divider inset></mat-divider>
+                            <mat-card-actions>
+                                <button mat-button [routerLink]="['/detail', hero.id]">View</button>
+                            </mat-card-actions>
+                        </mat-card>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </mat-drawer-content>
+    <mat-drawer mode="side" position="end" opened>
+        <app-hero-search></app-hero-search>
+    </mat-drawer>
+</mat-drawer-container>

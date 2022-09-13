@@ -48,5 +48,7 @@ class Monad:
         return f"Monad({self.value})"
 
 
-def do(*args, ret = monad.function.identity):
-    return reduce(lambda r, a: r >> a, args) > ret
+def do(*args):
+    """ Do comprehension ala haskell allowing PF with "effects"
+    """
+    return reduce(lambda r, a: r >> a, args)

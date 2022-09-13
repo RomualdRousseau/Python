@@ -4,6 +4,7 @@ from main import *
 
 f = lambda x: x * 2
 g = lambda x: x + 2
+h = lambda x, y: x + y
 u = Monad(f)
 v = Monad(g)
 
@@ -13,14 +14,11 @@ class TestMonadMethods(unittest.TestCase):
         self.assertAllTrue(lambda a: a == a, "All are true")
 
     def test_compose(self):
-        r = lambda a: function.compose(f)(g)(a) == f(g(a))
-        self.assertAllTrue(r)
+        self.assertEqual(function.compose(f)(g)(5), f(g(5)))
 
     def test_curry(self):
-        r = lambda x, y: x + y
-        self.assertEqual(add(2, 3), 5)
-        r = function.curry(r)
-        self.assertEqual(r(2)(3), add(2, 3))
+        self.assertEqual(h(2, 3), 5)
+        self.assertEqual(function.curry(h)(2)(3), h(2, 3))
 
     def test_applicative(self):
         # Identity
@@ -50,26 +48,26 @@ class TestMonadMethods(unittest.TestCase):
 
     def test_Parser(self):
         # char
-        self.assertEqual(char("+", (0, "+2")), Accept((0, '2')))
-        self.assertEqual(char("+", (0, "*2")), Error((0, '*2')))
-        self.assertEqual(char("+", (0, "")), Error((0, '')))
+        self.assertEqual(char("+", Value(0, None, "+2")), Accept(Value(0, None, "2")))
+        self.assertEqual(char("+", Value(0, None, "*2")), NotAccept(Value(0, None, "*2")))
+        self.assertEqual(char("+", Value(0, None, "")), NotAccept(Value(0, None, "")))
         # digit
-        self.assertEqual(digit((0, "3+2")), Accept((3, '+2')))
-        self.assertEqual(digit((0, "a+2")), Error((0, 'a+2')))
-        self.assertEqual(digit((0, "")), Error((0, '')))
+        self.assertEqual(digit(Value(0, None, "3+2")), Accept(Value(3, None, '+2')))
+        self.assertEqual(digit(Value(0, None, "a+2")), NotAccept(Value(0, None, "a+2")))
+        self.assertEqual(digit(Value(0, None, "")), NotAccept(Value(0, None, "")))
         # end
-        self.assertEqual(end((0, "")), Accept((0, '')))
-        self.assertEqual(end((0, "3+2")), Error((0, '3+2')))
+        self.assertEqual(end(Value(0, None, "")), Accept(Value(0, None, "")))
+        self.assertEqual(end(Value(0, None, "3+2")), Error(Value(0, None, "3+2")))
         # eval
-        self.assertEqual(eval("2+3"), Accept((5, '')))
-        self.assertEqual(eval("2*3"), Accept((6, '')))
-        self.assertEqual(eval("2+3*4"), Accept((14, '')))
-        self.assertEqual(eval("(2+3)*4"), Accept((20, '')))
-        self.assertEqual(eval("((2+3)*4/2+3+2)/2"), Accept((7.5, '')))
-        self.assertEqual(eval("2/0"), Error((2, '/0')))
-        self.assertEqual(eval("2/(3-3)"), Error((2, '/(3-3)')))
-        self.assertEqual(eval("2+x"), Error((2, '+x')))
-        self.assertEqual(eval("2*x"), Error((2, '*x')))
+        self.assertEqual(eval("2+3"), Accept(Value(5, None, '')))
+        self.assertEqual(eval("2*3"), Accept(Value(6, None, '')))
+        self.assertEqual(eval("2+3*4"), Accept(Value(14, None, '')))
+        self.assertEqual(eval("(2+3)*4"), Accept(Value(20, None, '')))
+        self.assertEqual(eval("((2+3)*4/2+3+2)/2"), Accept(Value(7.5, None, '')))
+        self.assertEqual(eval("2/0"), ErrorDivisionByZero(Value(2, None, '/0')))
+        self.assertEqual(eval("2/(3-3)"), ErrorDivisionByZero(Value(2, None, '/(3-3)')))
+        self.assertEqual(eval("2+x"), Error(Value(2, None, '+x')))
+        self.assertEqual(eval("2*x"), Error(Value(2, None, '*x')))
 
     def assertAllTrue(self, p, msg = None):
         for a in range(-1000, 1000):

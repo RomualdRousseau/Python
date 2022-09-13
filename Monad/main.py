@@ -1,8 +1,23 @@
 import monad
+from monad import do
+
+class AST:
+    def __init__(self, value, left, right):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+class Value:
+    def __init__(self, value, ast, stream):
+        self.value = value
+        self.ast = ast
+        self.stream = stream
+
 
 class Parser(monad.Monad):
     def __or__(self, other):
-        if isinstance(self, Accept):
+        if isinstance(self, Accept) or isinstance(self, Error):
             return self
         else:
             return other
@@ -16,129 +31,144 @@ class Accept(Parser):
         return Accept(v) 
 
     def withFilter(self, f):
-        return self if f(self.value) else Error(self.value)
+        return self if f(self.value) else NotAccept(self.value)
 
     def __repr__(self):
-        return f"Accept({self.value})"
+        return f"Accept({self.value.value})"
 
 
-class Error(Parser):
+class NotAccept(Parser):
     def __init__(self, value):
         super().__init__(value)
 
     def map(self, f):
-        return Error(self.value)
+        return self
+
+    def pure(v):
+        return NotAccept(v)
+
+    def ap(self, other):
+        return self
+
+    def flatMap(self, f):
+        return self
+
+    def withFilter(self, f):
+        return self
+
+    def __repr__(self):
+        return f"NotAccept({self.value.stream})"
+
+
+class Error(NotAccept):
+    def __init__(self, value, msg = None):
+        super().__init__(value)
+        self.msg = msg
 
     def pure(v):
         return Error(v)
 
-    def ap(self, other):
-        return Error(self.value)
-
-    def flatMap(self, f):
-        return Error(self.value)
-
-    def withFilter(self, f):
-        return Error(self.value)
-
     def __repr__(self):
-        return f"Error({self.value})"
+        return f"Error({self.value.stream}, {self.msg})"
+
+
+class ErrorDivisionByZero(Error):
+    def __init__(self, value):
+        super().__init__(value, "division by zero")
 
 
 def char(c, v):
-    acc, stream = v
-    if len(stream) > 0 and stream[0] == c:
-        return Accept((acc, stream[1:]))
+    if len(v.stream) > 0 and v.stream[0] == c:
+        return Accept(Value(v.value, v.ast, v.stream[1:]))
     else:
-        return Error(v)
+        return NotAccept(v)
 
 
 def digit(v):
-    acc, stream = v
-    if len(stream) > 0 and stream[0].isdigit():
-        return Accept((int(stream[0]), stream[1:]))
+    if len(v.stream) > 0 and v.stream[0].isdigit():
+        return Accept(Value(int(v.stream[0]), AST(v.stream[0], None, None), v.stream[1:]))
     else:
-        return Error(v)
+        return NotAccept(v)
 
 
 def num(v):
-    acc, stream = v
-    if len(stream) > 0 and stream[0].isdigit():
-        return num((acc * 10 + int(stream[0]), stream[1:]))
-    else:
-        return Accept(v)
+    def num_(v):
+        if len(v.stream) > 0 and v.stream[0].isdigit():
+            return num_(Value(v.value * 10 + int(v.stream[0]), AST(v.value + v.stream[0], None, None), v.stream[1:]))
+        else:
+            return Accept(v)
+    return digit(v) >> num_
 
 
 def end(v):
-    acc, stream = v
-    if len(stream) == 0:
-        return Accept((acc, ""))
+    if len(v.stream) == 0:
+        return Accept(v)
     else:
         return Error(v)
 
 
 def add(x, y):
-    return x + y
+    return Accept(Value(x.value + y. value, AST("add", x.ast, y.ast), y.stream))
 
 
 def sub(x, y):
-    return x - y
+    return Accept(Value(x.value - y.value, AST("sub", x.ast, y.ast), y.stream))
 
 
 def mul(x, y):
-    return x * y
+    return Accept(Value(x.value * y.value, AST("mul", x.ast, y.ast), y.stream))
 
 
-def div(x, y):
-    return x / y
-
-
-def op(f):
-    return lambda x: lambda y: Accept((f(x[0], y[0]), y[1]))
-
-
-def safe_div(x):
-    return lambda y: Accept((div(x[0], y[0]), y[1])) if y[0] != 0 else Error(x)
+def safe_div(x, y):
+    if y.value != 0:
+        return Accept(Value(x.value / y.value, AST("div", x.ast, y.ast), y.stream))
+    else:
+        return ErrorDivisionByZero(x)
 
 
 def eval(s):
-    return expr((0, s)) >> end
+    return expr(Value(0, None, s)) >> end
 
 
 def expr(v):
-    return monad.do(
-            term(v), lambda x: monad.do(
-            monad.function.curry(char)('+')(x),
+    return do(
+            term(v), lambda x: do(
+            char('+', x),
+            expr, 
+            monad.function.curry(add)(x))
+        ) | do(
+            term(v), lambda x: do(
+            char('-', x),
             expr,
-            op(add)(x))
-        ) | monad.do(
-            term(v), lambda x: monad.do(
-            monad.function.curry(char)('-')(x),
-            expr,
-            op(sub)(x))
+            monad.function.curry(sub)(x))
         ) | term(v)
 
 
 def term(v):
-    return monad.do(
-            factor(v), lambda x: monad.do(
-            monad.function.curry(char)('*')(x),
+    return do(
+            factor(v), lambda x: do(
+            char('*', x),
+            term, 
+            monad.function.curry(mul)(x))
+        ) | do(
+            factor(v), lambda x: do(
+            char('/', x),
             term,
-            op(mul)(x))
-        ) | monad.do(
-            factor(v), lambda x: monad.do(
-            monad.function.curry(char)('/')(x),
-            term,
-            safe_div(x))
+            monad.function.curry(safe_div)(x))
         ) | factor(v)
 
 
 def factor(v):
-    return monad.do(
-            monad.function.curry(char)('(')(v),
+    return do(
+            char('(', v),
             expr,
             monad.function.curry(char)(')')
-        ) | monad.do(
-            digit(v),
-            num
-        )
+        ) | num(v)
+
+
+def print_ast(root, indent = 0):
+    print(" " * indent, root.value)
+    if root.left != None:
+        print_ast(root.left, indent + 4)
+    if root.right != None:
+        print_ast(root.right, indent + 4)

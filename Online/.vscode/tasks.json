@@ -18,6 +18,30 @@
             "regexp": "bundle generation complete"
           }
         }
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/app/"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "bundle generation complete"
+          }
+        }
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/app/"
       }
     },
     {
@@ -36,6 +60,9 @@
             "regexp": "bundle generation complete"
           }
         }
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/app/"
       }
     }
   ]

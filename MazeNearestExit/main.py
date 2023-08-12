@@ -1,6 +1,10 @@
 import itertools as it
 
-maze = [["+", "+", ".", "+"], [".", ".", ".", "+"], ["+", "+", "+", "."]]
+maze = [
+    ["+", "+", ".", "+"],
+    [".", ".", ".", "+"],
+    ["+", "+", "+", "."]
+]
 # maze = [["+","+","+"],[".",".","."],["+","+","+"]]
 
 
@@ -13,13 +17,13 @@ def is_exit(maze, x, y):
 def is_connected(maze, x1, y1, x2, y2):
     m = len(maze)
     n = len(maze[0])
-
     e1 = maze[y1][x1]
     e2 = maze[y2][x2]
     if e1 != "." or e2 != ".":
         return False
+    else:
+        return abs(x2 - x1) == 1 and y1 == y2 or abs(y2 - y1) == 1 and x1 == x2
 
-    return abs(x2 - x1) == 1 and y1 == y2 or abs(y2 - y1) == 1 and x1 == x2
 
 def maze_to_graph(maze):
     m = len(maze)

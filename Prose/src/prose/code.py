@@ -2,24 +2,23 @@ from io import StringIO
 
 
 class Code:
-    
     def __init__(self):
         self.src_lines = None
-    
-    def load_from_file(self, path): 
+
+    def load_from_file(self, path):
         with open(path, "r") as f:
             self.src_lines = f.readlines()
-            
+
     def get_str_at(self, point):
         row, column = point
         if row >= len(self.src_lines) or column >= len(self.src_lines[row]):
             return None
         return self.src_lines[row][column:]
-    
+
     def get_bytes_at(self, point):
         c = self.get_str_at(point)
-        return c.encode('utf8') if c != None else None
-    
+        return c.encode("utf8") if c != None else None
+
     def get_block_between(self, start_point, end_point, show_line_numbers=True):
         start_y, _ = start_point
         end_y, _ = end_point

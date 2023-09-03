@@ -4,14 +4,14 @@ from tree_sitter import Language, Parser
 
 from code import Code
 
-JAVA_LANGUAGE = Language('build/grammar.so', 'java')
+JAVA_LANGUAGE = Language("build/grammar.so", "java")
 JAVA_DOC_FRAMEWORK = "JAVADOC"
 JAVA_TEST_FRAMEWORK = "JUNIT"
 
 PROMPT_DOCUMENT = f"""
 Comment the function below using {JAVA_DOC_FRAMEWORK}.
 Include a summary of what the method do and then summarize.
-Include also the list of parameters and return value.  
+Include also the list of parameters and return value.
 Do not put the coments in the method body but only in the {JAVA_DOC_FRAMEWORK} section.
 """
 
@@ -48,47 +48,51 @@ cursor.goto_first_child()
 while cursor.node.type != "method_declaration":
     cursor.goto_next_sibling()
 
-prompt = "\n".join([
-    PROMPT_UNIT_TEST,
-    code.get_block_between(cursor.node.start_point, cursor.node.end_point, show_line_numbers=False)
-    ])
+prompt = "\n".join(
+    [
+        PROMPT_UNIT_TEST,
+        code.get_block_between(
+            cursor.node.start_point, cursor.node.end_point, show_line_numbers=False
+        ),
+    ]
+)
 response = openai.ChatCompletion.create(
     engine="chat_gpt",
-    messages = [{
-        "role":"user",
-        "content": prompt
-        }],
+    messages=[{"role": "user", "content": prompt}],
     temperature=0,
     max_tokens=800,
     top_p=0.95,
     frequency_penalty=0,
     presence_penalty=0,
-    stop=None)
+    stop=None,
+)
 print(response["choices"][0]["message"]["content"])
-#print(code.get_block_between(cursor.node.start_point, cursor.node.end_point, show_line_numbers=False))
+# print(code.get_block_between(cursor.node.start_point, cursor.node.end_point, show_line_numbers=False))
 # print()
 
 # Go to the second method
 cursor.goto_next_sibling()
 while cursor.node.type != "method_declaration":
     cursor.goto_next_sibling()
-   
-prompt = "\n".join([
-    PROMPT_UNIT_TEST,
-    code.get_block_between(cursor.node.start_point, cursor.node.end_point, show_line_numbers=False)
-    ])
+
+prompt = "\n".join(
+    [
+        PROMPT_UNIT_TEST,
+        code.get_block_between(
+            cursor.node.start_point, cursor.node.end_point, show_line_numbers=False
+        ),
+    ]
+)
 response = openai.ChatCompletion.create(
     engine="gpt_docs",
-    messages = [{
-        "role":"user",
-        "content": prompt
-        }],
+    messages=[{"role": "user", "content": prompt}],
     temperature=0,
     max_tokens=800,
     top_p=0.95,
     frequency_penalty=0,
     presence_penalty=0,
-    stop=None)
+    stop=None,
+)
 print(response["choices"][0]["message"]["content"])
 # print(code.get_block_between(cursor.node.start_point, cursor.node.end_point, show_line_numbers=False))
 # print()

@@ -3,9 +3,8 @@ from util import *
 from player import *
 from monster import *
 
+
 class Sketch(Pyco):
-
-
     def _init(self):
         global pyco
         pyco = self
@@ -25,9 +24,7 @@ class Sketch(Pyco):
                     self.monsters.append(monster)
                     pyco.mset(pos, SKY)
 
-
     def _update(self):
-
         # Update map animation
         for i in range(16, 32):
             for j in range(128):
@@ -40,16 +37,15 @@ class Sketch(Pyco):
 
         for monster in self.monsters:
             monster.update()
-            
+
         self.timer = (self.timer + 1) % 8
-        
 
     def _draw(self):
         player = self.player.get_position()
         pyco.camera((-player[0] + 8 * 8, -16 * 8))
-        
+
         pyco.cls()
-        
+
         pyco.map()
 
         for monster in self.monsters:

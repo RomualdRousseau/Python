@@ -16,12 +16,12 @@ class ParserJava(ParserBase):
         self.parser = Parser()
         self.parser.set_language(JAVA_LANGUAGE)
 
-    def parse(self, code: Code, file: File) -> None:
+    def parse(self, code: Code) -> None:
         tree = self.parser.parse(lambda _, p: code.get_bytes_at(p))
         cursor = tree.walk()
-        self._parse_class(code, cursor, file)
-        self._parse_method(code, cursor, file)
-        self._parse_method(code, cursor, file)
+        self._parse_class(code, cursor, code.file)
+        self._parse_method(code, cursor, code.file)
+        self._parse_method(code, cursor, code.file)
 
     def _parse_class(self, code: Code, cursor: TreeCursor, file: File) -> None:
         # Go inside program
@@ -41,7 +41,11 @@ class ParserJava(ParserBase):
             cursor.node.start_point, cursor.node.end_point
         )
 
-        file.clazz = Class(class_name, class_start_point, class_end_point)
+        if file.clazz is None or file.clazz.name != class_name:
+            file.clazz = Class(class_name, class_start_point, class_end_point)
+        else:
+            file.clazz.start_point = class_start_point
+            file.clazz.end_point = class_end_point
 
         # Find the class body
         while cursor.node.type != "class_body":
@@ -64,7 +68,12 @@ class ParserJava(ParserBase):
             child_cursor.node.start_point, child_cursor.node.end_point
         )
 
-        file.methods.append(Method(method_name, method_start_point, method_end_point))
+        method = next(filter(lambda x: x.name == method_name, file.methods), None)
+        if method is None:
+            file.methods.append(Method(method_name, method_start_point, method_end_point))
+        else:
+            method.start_point = method_start_point
+            method.end_point = method_end_point
 
         # Find the next method
         cursor.goto_next_sibling()

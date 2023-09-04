@@ -1,7 +1,7 @@
 import unittest
 import itertools as it
 
-from main import maze_to_graph, is_exit, is_connected, dist, min_dist, graph_bfs
+from main import maze_to_graph, is_exit, is_connected, graph_bfs
 
 class TestMazeFunctions(unittest.TestCase):
     def setUp(self):
@@ -27,12 +27,12 @@ class TestMazeFunctions(unittest.TestCase):
             (False, True, 1), (True, False, 1), (False, False, 0), (True, False, 1)
         ]]
 
-        graph = maze_to_graph(self.maze, dist)
+        graph = maze_to_graph(self.maze)
         self.assertEqual(graph, expected_graph)
 
     def test_graph_bfs(self):
-        graph = maze_to_graph(self.maze, dist)
-        result, hits = graph_bfs(graph, 3, min_dist(-1))
+        graph = maze_to_graph(self.maze)
+        result, hits = graph_bfs(graph, 3)
         self.assertEqual(result, 6)
         self.assertEqual(hits, 2)
 

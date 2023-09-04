@@ -1,13 +1,19 @@
 from io import StringIO
 
+from prose.domain.file import File
 
 class Code:
-    def __init__(self):
+    def __init__(self, file: File):
+        self.file = file
         self.src_lines = None
 
-    def load(self, file_path: str) -> None:
-        with open(file_path, "r") as f:
-            self.src_lines = f.readlines()
+    def load(self) -> bool:
+        try:
+            with open(self.file.path, "r") as f:
+                self.src_lines = f.readlines()
+                return True
+        except IOError:
+            return False
 
     def get_str_at(self, point: (int)) -> str:
         row, column = point

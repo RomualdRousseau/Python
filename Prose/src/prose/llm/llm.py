@@ -3,15 +3,25 @@ from typing import Callable
 import openai
 
 from prose.parser.code import Code
+from prose.domain.file import File
+from prose.domain.clazz import Class
 from prose.domain.method import Method
 from prose.parser.parser_java import JAVA_DOC_FRAMEWORK, JAVA_TEST_FRAMEWORK
 
-PROMPT_DOCUMENT = f"""
-Comment the function below using {JAVA_DOC_FRAMEWORK}.
-Include a summary of what the method do and then summarize.
-Include also the list of parameters and return value.
-Do not put the coments in the method body but only in the {JAVA_DOC_FRAMEWORK} section.
-Do not input the function body in the response.
+PROMPT_DOCUMENT_CLASS = f"""
+Comment the given class using {JAVA_DOC_FRAMEWORK} by summarizing the {JAVA_DOC_FRAMEWORK} comments below.
+Do not include too much details.
+Do not include any parameters or return.
+Do not include the class definition.
+The final output must be a {JAVA_DOC_FRAMEWORK} comment.
+"""
+
+PROMPT_DOCUMENT_METHOD = f"""
+Comment the function below using {JAVA_DOC_FRAMEWORK} by summarizing what the method do, not as steps but as a text.
+Include always the list of parameters and return value at the end of the comment.
+Do not put the comments in the method body but only in the {JAVA_DOC_FRAMEWORK} section.
+Do not include the function body in the response.
+The final output must be a {JAVA_DOC_FRAMEWORK} comment.
 """
 
 PROMPT_UNIT_TEST = f"""
@@ -27,50 +37,58 @@ class LLM:
         openai.api_version = "2023-07-01-preview"
         openai.api_key = "a0dfae22426046e99380333303428a4e"
 
-    def commentify(self, code: Code, method: Method, filter:Callable[[str], str] | None=None) -> None:
+    def commentify_class(self, clazz: Class, methods: (Method), filter:Callable[[str], str] | None=None) -> None:
         prompt = "\n".join(
             [
-                PROMPT_DOCUMENT,
-                code.get_block_between(
-                    method.start_point, method.end_point, show_line_numbers=False
-                ),
+                PROMPT_DOCUMENT_CLASS,
+                "Class: " + clazz.name,
+                ""
+            ] + [
+                "\n".join(method.comment) + "\n" for method in methods
             ]
         )
-        response = openai.ChatCompletion.create(
-            engine="chat_gpt",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-            max_tokens=800,
-            top_p=0.95,
-            frequency_penalty=0,
-            presence_penalty=0,
-            stop=None,
+        content = self._query(prompt)
+        if filter is not None:
+            content = filter(content)
+        clazz.comment = content.splitlines()
+
+    def commentify_method(self, code: Code, method: Method, filter:Callable[[str], str] | None=None) -> None:
+        prompt = "\n".join(
+            [
+                PROMPT_DOCUMENT_METHOD,
+                code.get_block_between(
+                    method.start_point, method.end_point, show_line_numbers=False
+                )
+            ]
         )
-        content = response["choices"][0]["message"]["content"]
+        content = self._query(prompt)
         if filter is not None:
             content = filter(content)
         method.comment = content.splitlines()
 
-    def testify(self, code: Code, method: Method, filter:Callable[[str], str] | None=None) -> None:
+    def testify_method(self, code: Code, method: Method, filter:Callable[[str], str] | None=None) -> None:
         prompt = "\n".join(
             [
                 PROMPT_UNIT_TEST,
                 code.get_block_between(
                     method.start_point, method.end_point, show_line_numbers=False
-                ),
+                )
             ]
         )
+        content = self._query(prompt)
+        if filter is not None:
+            content = filter(content)
+        method.test = content.splitlines()
+
+    def _query(self, prompt: str, temperature: float=0):
         response = openai.ChatCompletion.create(
             engine="chat_gpt",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0,
+            temperature=temperature,
             max_tokens=800,
             top_p=0.95,
             frequency_penalty=0,
             presence_penalty=0,
             stop=None,
         )
-        content = response["choices"][0]["message"]["content"]
-        if filter is not None:
-            content = filter(content)
-        method.test = content.splitlines()
+        return response["choices"][0]["message"]["content"]

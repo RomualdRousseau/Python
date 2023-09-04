@@ -5,21 +5,30 @@ class Code:
     def __init__(self):
         self.src_lines = None
 
-    def load_from_file(self, path):
-        with open(path, "r") as f:
+    def load(self, file_path: str) -> None:
+        with open(file_path, "r") as f:
             self.src_lines = f.readlines()
 
-    def get_str_at(self, point):
+    def get_str_at(self, point: (int)) -> str:
         row, column = point
         if row >= len(self.src_lines) or column >= len(self.src_lines[row]):
             return None
         return self.src_lines[row][column:]
 
-    def get_bytes_at(self, point):
+    def get_str_between(self, start_point: (int), end_point: (int)) -> str:
+        row, start_column = start_point
+        _, end_column = end_point
+        if row >= len(self.src_lines) or start_column >= len(self.src_lines[row]):
+            return None
+        return self.src_lines[row][start_column:end_column]
+
+    def get_bytes_at(self, point: (int)) -> bytes:
         c = self.get_str_at(point)
         return c.encode("utf8") if c != None else None
 
-    def get_block_between(self, start_point, end_point, show_line_numbers=True):
+    def get_block_between(
+        self, start_point: (int), end_point: (int), show_line_numbers=True
+    ) -> str:
         start_y, _ = start_point
         end_y, _ = end_point
         with StringIO() as buffer:

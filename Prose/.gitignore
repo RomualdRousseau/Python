@@ -157,3 +157,6 @@ tags
 # Visual Studio Code #
 .vscode/
 .history
+
+# Prose
+prose.json

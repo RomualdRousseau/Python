@@ -1,11 +1,5 @@
+import unittest
 import itertools as it
-
-maze = [
-    ["+", "+", ".", "+"],
-    [".", ".", ".", "+"],
-    ["+", "+", "+", "."]
-]
-# maze = [["+","+","+"],[".",".","."],["+","+","+"]]
 
 
 def is_exit(maze, x, y):
@@ -30,10 +24,7 @@ def maze_to_graph(maze):
     n = len(maze[0])
     return [
         [
-            (
-                is_connected(maze, a[1], a[0], b[1], b[0]),
-                is_exit(maze, b[1], b[0])
-            )
+            (is_connected(maze, a[1], a[0], b[1], b[0]), is_exit(maze, b[1], b[0]))
             for b in it.product(range(m), range(n))
         ]
         for a in it.product(range(m), range(n))
@@ -42,7 +33,7 @@ def maze_to_graph(maze):
 
 def graph_bfs(graph, s):
     n = len(graph)
-    
+
     res = []
     hits = [0 for i in range(n)]
 
@@ -62,7 +53,41 @@ def graph_bfs(graph, s):
                 queue.append(j)
                 visited[j] = True
 
-    return res, [hits[i] for i in res]
+    if len(res) > 0:
+        return res[0], hits[res[0]]
+    else:
+        return -1, -1
 
 
-print(graph_bfs(maze_to_graph(maze), 2))
+def nearest_exit(maze, s):
+    n = len(maze[0])
+    x = s[0] * n + s[1]
+    _, s = graph_bfs(maze_to_graph(maze), x)
+    return s
+
+
+class Test_NearestExit(unittest.TestCase):
+    def test_example1(self):
+        input = [["+", "+", ".", "+"], [".", ".", ".", "+"], ["+", "+", "+", "."]]
+        entrance = (1, 2)
+        expected = 1
+        result = nearest_exit(input, entrance)
+        self.assertEqual(result, expected)
+
+    def test_example2(self):
+        maze = [["+", "+", "+"], [".", ".", "."], ["+", "+", "+"]]
+        entrance = (1, 0)
+        expected = 2
+        result = nearest_exit(maze, entrance)
+        self.assertEqual(result, expected)
+
+    def test_example3(self):
+        maze = [[".", "+"]]
+        entrance = (0, 0)
+        expected = -1
+        result = nearest_exit(maze, entrance)
+        self.assertEqual(result, expected)
+
+
+if __name__ == "__main__":
+    unittest.main()
